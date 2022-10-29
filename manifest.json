@@ -1,0 +1,44 @@
+{
+    "Actions": [
+        {
+            "Icon": "images/power",
+            "Name": "Toggle AVR",
+            "States": [
+                {
+                    "Name": "On",
+                    "Image": "images/power-on"
+                },
+                {
+                    "Name": "Off",
+                    "Image": "images/power-off"
+                }
+            ],
+            "SupportedInMultiActions": true,
+            "Tooltip": "Toggle the power of your Denon AVR.", 
+            "UUID": "nl.kevinheruer.denon.power"
+        }
+    ],
+    "SDKVersion": 2,
+    "Author": "Kevin Heruer",
+    "CodePath": "target/debug/denon",
+    "Description": "Control your Denon AVR.",
+    "Name": "Denon Control",
+    "Icon": "",
+    "Category": "Denon",
+    "CategoryIcon": "",
+    "URL": "https://kevinheruer.nl",
+    "Version": "0.0.1",
+    "OS": [
+        {
+            "Platform": "mac",
+            "MinimumVersion": "10.11"
+        },
+        {
+            "Platform": "windows",
+            "MinimumVersion": "10"
+        }
+    ],
+    "Software": {
+        "MinimumVersion": "5.0"
+    }
+}
