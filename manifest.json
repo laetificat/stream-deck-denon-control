@@ -26,6 +26,7 @@
     "Icon": "",
     "Category": "Denon",
     "CategoryIcon": "",
+    "PropertyInspectorPath": "index.html", 
     "URL": "https://kevinheruer.nl",
     "Version": "0.0.1",
     "OS": [
