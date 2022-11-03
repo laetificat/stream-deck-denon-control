@@ -16,6 +16,13 @@
             "SupportedInMultiActions": true,
             "Tooltip": "Toggle the power of your Denon AVR.", 
             "UUID": "nl.kevinheruer.denon.power"
+        },
+        {
+            "Icon": "images/volume",
+            "Name": "Set volume level",
+            "SupportedInMultiActions": true,
+            "Tooltip": "Set a specific volume level.",
+            "UUID": "nl.kevinheruer.denon.volumespecific"
         }
     ],
     "SDKVersion": 2,
