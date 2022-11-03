@@ -1,7 +1,9 @@
 mod models;
+mod denon;
 
 use std::{env, net::TcpStream, str};
 
+use models::event::Event;
 use websocket::{ClientBuilder, Message, sync::Reader, sync::Writer, ws::dataframe::DataFrame};
 
 fn main() {
@@ -44,43 +46,42 @@ fn listen_for_events(mut receiver: Reader<TcpStream>, mut sender: Writer<TcpStre
 
         let msg = str::from_utf8(&received_message).unwrap();
         match serde_json::from_str::<models::event::Event>(msg) {
-            Ok(event) => {
-                match event.event.as_str() {
-                    "keyUp" => {
-                        match serde_json::from_str::<models::keyup::KeyUpAction>(msg) {
-                            Ok(action) => {
-                                match action.action.as_str() {
-                                    "nl.kevinheruer.denon.power" => cmd_power(action, &mut sender, &ip_address),
-                                    _ => log_message(&mut sender, String::from("could not handle action"))
-                                }
-                            },
-                            Err(err) => log_message(&mut sender, String::from(err.to_string()))
-                        }
-                    },
-                    "didReceiveGlobalSettings" => log_message(&mut sender, String::from("did receive global settings event")),
-                    "deviceDidConnect" => log_message(&mut sender, String::from("device did connect event")),
-                    _ => log_message(&mut sender, String::from("could not handle event"))
-                }
-            },
+            Ok(event) => handle_event(event, msg, &mut sender, &ip_address),
             Err(err) => log_message(&mut sender, err.to_string())
         }
     };
 }
 
+fn handle_event(event: Event, msg: &str, sender: &mut Writer<TcpStream>, ip_address: &String) {
+    match event.event.as_str() {
+        "keyUp" => handle_keyup_action(msg, sender, ip_address),
+        "didReceiveGlobalSettings" => log_message(sender, String::from("did receive global settings event")),
+        "deviceDidConnect" => log_message(sender, String::from("device did connect event")),
+        _ => log_message(sender, String::from("could not handle event"))
+    }
+}
+
+fn handle_keyup_action(msg: &str, sender: &mut Writer<TcpStream>, ip_address: &String) {
+    match serde_json::from_str::<models::keyup::KeyUpAction>(msg) {
+        Ok(action) => {
+            match action.action.as_str() {
+                "nl.kevinheruer.denon.power" => cmd_power(action, sender, &ip_address),
+                _ => log_message(sender, String::from("could not handle action"))
+            }
+        },
+        Err(err) => log_message(sender, String::from(err.to_string()))
+    }
+}
+
 fn cmd_power(action: models::keyup::KeyUpAction, sender: &mut Writer<TcpStream>, ip_address: &String) {
+    let client = denon::Client {
+        ip: ip_address.to_owned(),
+        writer: sender
+    };
+
     match action.payload.state {
-        0 => {
-            match reqwest::blocking::get("http://".to_owned()+ip_address+":8080/goform/formiPhoneAppDirect.xml?PWSTANDBY") {
-                Err(err) => log_message(sender, err.to_string()),
-                _ => {}
-            }
-        },
-        1 => {
-            match reqwest::blocking::get("http://".to_owned()+ip_address+":8080/goform/formiPhoneAppDirect.xml?PWON") {
-                Err(err) => log_message(sender, err.to_string()),
-                _ => {}
-            }
-        },
+        0 => client.power_standby(),
+        1 => client.power_on(),
         _ => log_message(sender, "state out of range".to_string())
     }
 }
