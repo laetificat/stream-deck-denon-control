@@ -24,8 +24,12 @@ function connectElgatoStreamDeckSocket (inPort, inUUID, inRegisterEvent, inInfo,
     addDynamicStyles(inInfo.colors, 'connectElgatoStreamDeckSocket');
     
     /** let's see, if we have some settings */
-    settings = getPropFromString(actionInfo, 'payload.settings', false);
-    // console.log(settings, actionInfo);
+    settings = getPropFromString(actionInfo, 'payload.settings');
+
+    for (const property in settings) {
+        document.getElementById(property).value = settings[property];
+    }
+
     initPropertyInspector(5);
 
     // if connection was established, the websocket sends
@@ -38,11 +42,11 @@ function connectElgatoStreamDeckSocket (inPort, inUUID, inRegisterEvent, inInfo,
         // register property inspector to Stream Deck
         websocket.send(JSON.stringify(json));
         
-        var getGlobalSettingIP = {
+        var getGlobalSettings = {
             event: "getGlobalSettings",
             context: inUUID
         }
-        websocket.send(JSON.stringify(getGlobalSettingIP))
+        websocket.send(JSON.stringify(getGlobalSettings))
     };
 
     websocket.onmessage = function (evt) {
@@ -52,7 +56,8 @@ function connectElgatoStreamDeckSocket (inPort, inUUID, inRegisterEvent, inInfo,
 
         if (event === 'didReceiveGlobalSettings') {
             let settings = getPropFromString(jsonObj, 'payload.settings');
-            console.log(settings);
+            const ipEl = document.getElementById("ipaddress");
+            ipEl.value = settings.ipaddress;
         }
     };
 }
@@ -337,23 +342,20 @@ function handleSdpiItemChange(e, idx) {
         }
     }
 
-    if (e.type === 'text' && e.id === 'ipaddress') {
-        if (/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(e.value) || e.value === '') {
-            let payload = {value: e.value}
-            saveValueToGlobal(payload, 'ip_address');
-            sendValueToPlugin(payload, 'ip_address');
-            return;
+    if (e.type === 'text') {
+        if (e.id === 'ipaddress') {
+            if (/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(e.value) || e.value === '') {
+                saveValueToGlobal(e.value, e.id);
+                sendValueToPlugin(e.value, e.id);
+                return;
+            }
+        } else {
+            saveValueToAction(e.value, e.id);
         }
+        
     }
 
     sendValueToPlugin(returnValue, 'sdpi_collection');
-}
-
-function updateKeyForDemoCanvas (cnv) {
-    sendValueToPlugin({
-        key: 'your_canvas',
-        value: cnv.toDataURL()
-    }, 'sdpi_collection');
 }
 
 /** Stream Deck software passes system-highlight color information
@@ -545,5 +547,33 @@ function initToolTip(element, tooltip) {
             fn();
         }, false);
         element.addEventListener('input', fn, false);
+    }
+}
+
+function includeHTML() {
+    var z, i, elmnt, file, xhttp;
+    /* Loop through a collection of all HTML elements: */
+    z = document.getElementsByTagName("*");
+    for (i = 0; i < z.length; i++) {
+        elmnt = z[i];
+        /*search for elements with a certain atrribute:*/
+        file = elmnt.getAttribute("w3-include-html");
+        if (file) {
+            /* Make an HTTP request using the attribute value as the file name: */
+            xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function () {
+                if (this.readyState == 4) {
+                    if (this.status == 0) { elmnt.innerHTML = this.responseText; }
+                    if (this.status == 404) { elmnt.innerHTML = "Page not found."; }
+                    /* Remove the attribute, and call this function once more: */
+                    elmnt.removeAttribute("w3-include-html");
+                    includeHTML();
+                }
+            }
+            xhttp.open("GET", file, true);
+            xhttp.send();
+            /* Exit the function: */
+            return;
+        }
     }
 }

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no,minimal-ui,viewport-fit=cover">
+    <meta name=apple-mobile-web-app-capable content=yes>
+    <meta name=apple-mobile-web-app-status-bar-style content=black>
+    <title>nl.kevinheruer.denon.power</title>
+    <link rel="stylesheet" href="css/sdpi.css">
+
+    <style>
+        /* COLOR/BRIGHTNESS sliders */
+        /* overwrite styles of color and greyscale sliders to fit your needs */
+        input[type="range"].overwritten-by-css::-webkit-slider-runnable-track {
+            background-color: yellow;
+            background-image: linear-gradient(to right, blue, rgba(255, 0, 0, 0));
+        }
+    </style>
+
+</head>
+
+<body>
+    <div class="sdpi-wrapper">
+
+        <div w3-include-html="global_settings.html"></div> 
+
+    </div>
+    <div class="sdpi-info-label hidden" style="top: -1000;" value=""></div>
+
+    <script src="common.js"></script>
+    <script>
+        includeHTML();
+    </script> 
+
+</body>
+
+</html>
