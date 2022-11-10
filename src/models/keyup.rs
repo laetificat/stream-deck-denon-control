@@ -13,7 +13,10 @@ mod keyup {
     #[derive(Deserialize)]
     pub struct KeyUpActionPayload {
         pub coordinates: KeyUpActionPayloadCoordinates,
-        pub state: u32
+        #[serde(default)]
+        pub state: u32,
+        #[serde(default)]
+        pub settings: serde_json::Map<std::string::String, serde_json::Value>
     }
     
     #[derive(Deserialize)]

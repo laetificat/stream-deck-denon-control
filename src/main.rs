@@ -1,9 +1,11 @@
 mod models;
 mod denon;
+mod logger;
 
 use std::{env, net::TcpStream, str};
 
 use models::event::Event;
+
 use websocket::{ClientBuilder, Message, sync::Reader, sync::Writer, ws::dataframe::DataFrame};
 
 fn main() {
@@ -34,64 +36,82 @@ fn connect_elgato_stream_deck_socket(in_port: String, in_plugin_uuid: String, in
     let message = Message::text(serde_json::to_string(&registration_message).unwrap());
     sender.send_message(&message).unwrap();
 
+    let get_global_settings_message = models::settings::GetGlobalSettings {
+        event: String::from("getGlobalSettings"),
+        context: in_plugin_uuid.to_owned()
+    };
+
+    let message = Message::text(serde_json::to_string(&get_global_settings_message).unwrap());
+    sender.send_message(&message).unwrap();
+
     listen_for_events(receiver, sender, String::from(""));
 }
 
-// TODO: rewrite this part to be called ran in a separate process, kill and start new process on config change
-fn listen_for_events(mut receiver: Reader<TcpStream>, mut sender: Writer<TcpStream>, ip_address: String) {
+fn listen_for_events(mut receiver: Reader<TcpStream>, sender: Writer<TcpStream>, ip_address: String) {
+    let mut logger = logger::Client {
+        sender
+    };
+    let mut client = denon::Client {
+        ip: ip_address.to_owned(),
+    };
+
     for incoming_message in receiver.incoming_messages() {
         let received_message = incoming_message.unwrap().take_payload();
 
-        log_message(&mut sender, str::from_utf8(&received_message).unwrap().to_string());
-
         let msg = str::from_utf8(&received_message).unwrap();
         match serde_json::from_str::<models::event::Event>(msg) {
-            Ok(event) => handle_event(event, msg, &mut sender, &ip_address),
-            Err(err) => log_message(&mut sender, err.to_string())
+            Ok(event) => handle_event(event, msg, &mut client, &mut logger),
+            Err(err) => logger.error(err.to_string())
         }
     };
 }
 
-fn handle_event(event: Event, msg: &str, sender: &mut Writer<TcpStream>, ip_address: &String) {
+fn handle_event(event: Event, msg: &str, client: &mut denon::Client, logger: &mut logger::Client) {
     match event.event.as_str() {
-        "keyUp" => handle_keyup_action(msg, sender, ip_address),
-        "didReceiveGlobalSettings" => log_message(sender, String::from("did receive global settings event")),
-        "deviceDidConnect" => log_message(sender, String::from("device did connect event")),
-        _ => log_message(sender, String::from("could not handle event"))
+        "keyUp" => handle_keyup_action(msg, client, logger),
+        "didReceiveGlobalSettings" => handle_global_settings(msg, client, logger),
+        _ => logger.error(String::from("could not handle event: ".to_owned()+event.event.as_str()))
     }
 }
 
-fn handle_keyup_action(msg: &str, sender: &mut Writer<TcpStream>, ip_address: &String) {
+fn handle_global_settings(msg: &str, client: &mut denon::Client, logger: &mut logger::Client) {
+    match serde_json::from_str::<models::settings::Global>(msg) {
+        Ok(global_settings) => {
+            match global_settings.payload.settings.get("ipaddress") {
+                Some(ip) => {
+                    client.ip = ip.to_string().replace("\"", "");
+                },
+                None => logger.error(String::from("could not find ipaddress setting"))
+            }
+        },
+        Err(err) => logger.error(err.to_string())
+    };
+}
+
+fn handle_keyup_action(msg: &str, client: &denon::Client, logger: &mut logger::Client) {
     match serde_json::from_str::<models::keyup::KeyUpAction>(msg) {
         Ok(action) => {
             match action.action.as_str() {
-                "nl.kevinheruer.denon.power" => cmd_power(action, sender, &ip_address),
-                _ => log_message(sender, String::from("could not handle action"))
+                "nl.kevinheruer.denon.power" => cmd_power(action, client, logger),
+                "nl.kevinheruer.denon.volumespecific" => cmd_volumespecific(action, client),
+                _ => logger.error(String::from("could not handle action"))
             }
         },
-        Err(err) => log_message(sender, String::from(err.to_string()))
+        Err(err) => logger.error(err.to_string())
     }
 }
 
-fn cmd_power(action: models::keyup::KeyUpAction, sender: &mut Writer<TcpStream>, ip_address: &String) {
-    let client = denon::Client {
-        ip: ip_address.to_owned(),
-        writer: sender
-    };
-
+fn cmd_power(action: models::keyup::KeyUpAction, client: &denon::Client, logger: &mut logger::Client) {
     match action.payload.state {
         0 => client.power_standby(),
         1 => client.power_on(),
-        _ => log_message(sender, "state out of range".to_string())
+        _ => logger.error("state out of range".to_string())
     }
 }
 
-fn log_message(sender: &mut Writer<TcpStream>, message: String) {
-    let log = models::log::Message {
-        event: "logMessage".to_owned(),
-        payload: models::log::Payload { message }
-    };
-
-    let message = Message::text(serde_json::to_string(&log).unwrap());
-    sender.send_message(&message).unwrap();
+fn cmd_volumespecific(action: models::keyup::KeyUpAction, client: &denon::Client) {
+    match action.payload.settings.get("volumelevel") {
+        Some(level) => client.volume_specific(&level.to_string()),
+        None => {}
+    }
 }

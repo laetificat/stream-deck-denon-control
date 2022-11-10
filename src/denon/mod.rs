@@ -1,26 +1,30 @@
 mod denon {
-    use std::net::TcpStream;
-
-    use websocket::sync::Writer;
-
-    pub struct Client<'a> {
+    pub struct Client {
         pub ip: String,
-        pub writer: &'a mut Writer<TcpStream>
     }
 
-    impl Client<'_> {
+    impl Client {
         pub fn power_standby(&self) {
             match reqwest::blocking::get("http://".to_owned()+self.ip.as_str()+":8080/goform/formiPhoneAppDirect.xml?PWSTANDBY") {
-                // Err(err) => log_message(sender, err.to_string()),
-                Err(err) => {},
+                Err(_) => {},
                 _ => {}
             }
         }
 
         pub fn power_on(&self) {
             match reqwest::blocking::get("http://".to_owned()+self.ip.as_str()+":8080/goform/formiPhoneAppDirect.xml?PWON") {
-                // Err(err) => log_message(sender, err.to_string()),
-                Err(err) => {},
+                Err(_) => {},
+                _ => {}
+            }
+        }
+
+        pub fn volume_specific(&self, volume_level: &String) {
+            if volume_level.len() == 0 {
+                return;
+            }
+
+            match reqwest::blocking::get("http://".to_owned()+self.ip.as_str()+":8080/goform/formiPhoneAppDirect.xml?MV"+&volume_level.replace("\"", "")) {
+                Err(_) => {},
                 _ => {}
             }
         }
