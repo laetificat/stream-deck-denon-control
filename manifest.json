@@ -38,11 +38,11 @@
             "States": [
                 {
                     "Name": "On",
-                    "Image": "images/volume"
+                    "Image": "images/mute"
                 },
                 {
                     "Name": "Off",
-                    "Image": "images/mute"
+                    "Image": "images/volume"
                 }
             ],
             "SupportedInMultiActions": true,

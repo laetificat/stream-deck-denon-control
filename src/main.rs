@@ -94,6 +94,9 @@ fn handle_keyup_action(msg: &str, client: &denon::Client, logger: &mut logger::C
             match action.action.as_str() {
                 "nl.kevinheruer.denon.power" => cmd_power(action, client, logger),
                 "nl.kevinheruer.denon.volumespecific" => cmd_volumespecific(action, client),
+                "nl.kevinheruer.denon.volumeup" => client.volume_up(),
+                "nl.kevinheruer.denon.volumedown" => client.volume_down(),
+                "nl.kevinheruer.denon.mute" => cmd_mute(action, client, logger),
                 _ => logger.error(String::from("could not handle action"))
             }
         },
@@ -113,5 +116,13 @@ fn cmd_volumespecific(action: models::keyup::KeyUpAction, client: &denon::Client
     match action.payload.settings.get("volumelevel") {
         Some(level) => client.volume_specific(&level.to_string()),
         None => {}
+    }
+}
+
+fn cmd_mute(action: models::keyup::KeyUpAction, client: &denon::Client, logger: &mut logger::Client) {
+    match action.payload.state {
+        0 => client.volume_mute_off(),
+        1 => client.volume_mute_on(),
+        _ => logger.error("state out of range".to_string())
     }
 }
