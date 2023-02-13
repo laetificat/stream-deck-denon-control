@@ -84,7 +84,7 @@
     "CodePath": "target/debug/denon",
     "Description": "Control your Denon AVR.",
     "Name": "Denon Control",
-    "Icon": "",
+    "Icon": "denon",
     "Category": "Denon",
     "CategoryIcon": "",
     "URL": "https://kevinheruer.nl",
