@@ -86,7 +86,7 @@
     "Name": "Denon Control",
     "Icon": "denon",
     "Category": "Denon",
-    "CategoryIcon": "",
+    "CategoryIcon": "denon",
     "URL": "https://kevinheruer.nl",
     "Version": "0.0.1",
     "OS": [
