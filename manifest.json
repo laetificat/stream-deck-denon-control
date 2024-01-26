@@ -1,105 +1,105 @@
 {
-    "Actions": [
+  "Actions": [
+    {
+      "Icon": "images/power",
+      "Name": "Toggle power",
+      "States": [
         {
-            "Icon": "images/power",
-            "Name": "Toggle power",
-            "States": [
-                {
-                    "Name": "On",
-                    "Image": "images/power-on"
-                },
-                {
-                    "Name": "Off",
-                    "Image": "images/power-off"
-                }
-            ],
-            "SupportedInMultiActions": true,
-            "Tooltip": "Toggle the power of your Denon AVR.", 
-            "UUID": "nl.kevinheruer.denon.power",
-            "PropertyInspectorPath": "propertyinspector/power.html"
+          "Name": "On",
+          "Image": "images/power-on"
         },
         {
-            "Icon": "images/volume-equal-small",
-            "Name": "Set volume level",
-            "States": [
-                {
-                    "Image": "images/volume-equal",
-                    "TitleAlignment": "bottom"
-                }
-            ],
-            "SupportedInMultiActions": true,
-            "Tooltip": "Set a specific volume level.",
-            "UUID": "nl.kevinheruer.denon.volumespecific",
-            "PropertyInspectorPath": "propertyinspector/volume_specific.html"
-        },
-        {
-            "Icon": "images/mute-small",
-            "Name": "Toggle mute",
-            "States": [
-                {
-                    "Name": "On",
-                    "Image": "images/mute"
-                },
-                {
-                    "Name": "Off",
-                    "Image": "images/volume"
-                }
-            ],
-            "SupportedInMultiActions": true,
-            "Tooltip": "Toggles mute on or off.",
-            "UUID": "nl.kevinheruer.denon.mute",
-            "PropertyInspectorPath": "propertyinspector/mute.html"
-        },
-        {
-            "Icon": "images/volume-up-small",
-            "Name": "Volume up",
-            "States": [
-                {
-                    "Image": "images/volume-up",
-                    "TitleAlignment": "bottom"
-                }
-            ],
-            "SupportedInMultiActions": true,
-            "Tooltip": "Turns up the volume by specified amount.",
-            "UUID": "nl.kevinheruer.denon.volumeup",
-            "PropertyInspectorPath": "propertyinspector/volume_up.html"
-        },
-        {
-            "Icon": "images/volume-down-small",
-            "Name": "Volume down",
-            "States": [
-                {
-                    "Image": "images/volume-down",
-                    "TitleAlignment": "bottom"
-                }
-            ],
-            "SupportedInMultiActions": true,
-            "Tooltip": "Turns down the volume by specified amount.",
-            "UUID": "nl.kevinheruer.denon.volumedown",
-            "PropertyInspectorPath": "propertyinspector/volume_down.html"
+          "Name": "Off",
+          "Image": "images/power-off"
         }
-    ],
-    "SDKVersion": 2,
-    "Author": "Kevin Heruer",
-    "CodePath": "target/debug/denon",
-    "Description": "Control your Denon AVR.",
-    "Name": "Denon Control",
-    "Icon": "denon",
-    "Category": "Denon",
-    "CategoryIcon": "denon",
-    "URL": "https://kevinheruer.nl",
-    "Version": "0.0.1",
-    "OS": [
+      ],
+      "SupportedInMultiActions": true,
+      "Tooltip": "Toggle the power of your Denon AVR.",
+      "UUID": "nl.kevinheruer.denon.power",
+      "PropertyInspectorPath": "propertyinspector/power.html"
+    },
+    {
+      "Icon": "images/volume-equal-small",
+      "Name": "Set volume level",
+      "States": [
         {
-            "Platform": "mac",
-            "MinimumVersion": "10.11"
+          "Image": "images/volume-equal",
+          "TitleAlignment": "bottom"
+        }
+      ],
+      "SupportedInMultiActions": true,
+      "Tooltip": "Set a specific volume level.",
+      "UUID": "nl.kevinheruer.denon.volumespecific",
+      "PropertyInspectorPath": "propertyinspector/volume_specific.html"
+    },
+    {
+      "Icon": "images/mute-small",
+      "Name": "Toggle mute",
+      "States": [
+        {
+          "Name": "On",
+          "Image": "images/mute"
         },
         {
-            "Platform": "windows",
-            "MinimumVersion": "10"
+          "Name": "Off",
+          "Image": "images/volume"
         }
-    ],
-    "Software": {
-        "MinimumVersion": "5.0"
+      ],
+      "SupportedInMultiActions": true,
+      "Tooltip": "Toggles mute on or off.",
+      "UUID": "nl.kevinheruer.denon.mute",
+      "PropertyInspectorPath": "propertyinspector/mute.html"
+    },
+    {
+      "Icon": "images/volume-up-small",
+      "Name": "Volume up",
+      "States": [
+        {
+          "Image": "images/volume-up",
+          "TitleAlignment": "bottom"
+        }
+      ],
+      "SupportedInMultiActions": true,
+      "Tooltip": "Turns up the volume by specified amount.",
+      "UUID": "nl.kevinheruer.denon.volumeup",
+      "PropertyInspectorPath": "propertyinspector/volume_up.html"
+    },
+    {
+      "Icon": "images/volume-down-small",
+      "Name": "Volume down",
+      "States": [
+        {
+          "Image": "images/volume-down",
+          "TitleAlignment": "bottom"
+        }
+      ],
+      "SupportedInMultiActions": true,
+      "Tooltip": "Turns down the volume by specified amount.",
+      "UUID": "nl.kevinheruer.denon.volumedown",
+      "PropertyInspectorPath": "propertyinspector/volume_down.html"
     }
+  ],
+  "SDKVersion": 2,
+  "Author": "Kevin Heruer",
+  "CodePath": "target/debug/denon.exe",
+  "Description": "Control your Denon AVR.",
+  "Name": "Denon Control",
+  "Icon": "denon",
+  "Category": "Denon",
+  "CategoryIcon": "denon",
+  "URL": "https://kevinheruer.nl",
+  "Version": "0.0.1",
+  "OS": [
+    {
+      "Platform": "mac",
+      "MinimumVersion": "10.11"
+    },
+    {
+      "Platform": "windows",
+      "MinimumVersion": "10"
+    }
+  ],
+  "Software": {
+    "MinimumVersion": "5.0"
+  }
 }

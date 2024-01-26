@@ -9,7 +9,7 @@ var websocket = null,
     isQT = navigator.appVersion.includes('QtWebEngine'),
     onchangeevt = 'onchange'; // 'oninput'; // change this, if you want interactive elements act on any change, or while they're modified
 
-function connectElgatoStreamDeckSocket (inPort, inUUID, inRegisterEvent, inInfo, inActionInfo) {
+function connectElgatoStreamDeckSocket(inPort, inUUID, inRegisterEvent, inInfo, inActionInfo) {
     uuid = inUUID;
     // please note: the incoming arguments are of type STRING, so
     // in case of the inActionInfo, we must parse it into JSON first
@@ -22,7 +22,7 @@ function connectElgatoStreamDeckSocket (inPort, inUUID, inRegisterEvent, inInfo,
      * We use these to adjust some styles (e.g. highlight-colors for checkboxes)
      */
     addDynamicStyles(inInfo.colors, 'connectElgatoStreamDeckSocket');
-    
+
     /** let's see, if we have some settings */
     settings = getPropFromString(actionInfo, 'payload.settings');
 
@@ -41,7 +41,7 @@ function connectElgatoStreamDeckSocket (inPort, inUUID, inRegisterEvent, inInfo,
         };
         // register property inspector to Stream Deck
         websocket.send(JSON.stringify(json));
-        
+
         var getGlobalSettings = {
             event: "getGlobalSettings",
             context: inUUID
@@ -57,7 +57,10 @@ function connectElgatoStreamDeckSocket (inPort, inUUID, inRegisterEvent, inInfo,
         if (event === 'didReceiveGlobalSettings') {
             let settings = getPropFromString(jsonObj, 'payload.settings');
             const ipEl = document.getElementById("ipaddress");
-            ipEl.value = settings.ipaddress;
+
+            if (ipEl && settings.ipaddress) {
+                ipEl.value = settings.ipaddress;
+            }
         }
     };
 }
@@ -73,13 +76,13 @@ function initPropertyInspector(initDelay) {
     }, initDelay || 100);
 }
 
-function revealSdpiWrapper () {
+function revealSdpiWrapper() {
     const el = document.querySelector('.sdpi-wrapper');
     el && el.classList.remove('hidden');
 }
 
 // our method to pass values to the plugin
-function sendValueToPlugin (value, param) {
+function sendValueToPlugin(value, param) {
     if (websocket && (websocket.readyState === 1)) {
         const json = {
             'action': actionInfo['action'],
@@ -94,7 +97,7 @@ function sendValueToPlugin (value, param) {
 }
 
 // our method to save settings to global
-function saveValueToGlobal (value, param) {
+function saveValueToGlobal(value, param) {
     if (websocket && (websocket.readyState === 1)) {
         const json = {
             'event': 'setGlobalSettings',
@@ -108,7 +111,7 @@ function saveValueToGlobal (value, param) {
 }
 
 // our method to save settings to action
-function saveValueToAction (value, param) {
+function saveValueToAction(value, param) {
     if (websocket && (websocket.readyState === 1)) {
         const json = {
             'event': 'setSettings',
@@ -163,8 +166,8 @@ function prepareDOMElements(baseElement) {
             if (inputGroup.length === 2) {
                 const offs = inputGroup[0].tagName === 'INPUT' ? 1 : 0;
                 inputGroup[offs].innerText = inputGroup[1 - offs].value;
-                inputGroup[1 - offs]['oninput'] = function() {
-                inputGroup[offs].innerText = inputGroup[1 - offs].value;
+                inputGroup[1 - offs]['oninput'] = function () {
+                    inputGroup[offs].innerText = inputGroup[1 - offs].value;
                 };
             }
             /** We look for elements which have an 'clickable' attribute
@@ -173,7 +176,7 @@ function prepareDOMElements(baseElement) {
              */
             Array.from(el.querySelectorAll('.clickable')).forEach(
                 (subel, subi) => {
-                    subel['onclick'] = function(e) {
+                    subel['onclick'] = function (e) {
                         handleSdpiItemChange(e.target, subi);
                     };
                 }
@@ -182,7 +185,7 @@ function prepareDOMElements(baseElement) {
              * we clone it, and call it in the callback, right before the freshly attached event
             */
             const cloneEvt = el[evt];
-            el[evt] = function(e) {
+            el[evt] = function (e) {
                 if (cloneEvt) cloneEvt();
                 handleSdpiItemChange(e.target, i);
             };
@@ -231,7 +234,7 @@ function prepareDOMElements(baseElement) {
 function handleSdpiItemChange(e, idx) {
 
     /** Following items are containers, so we won't handle clicks on them */
-    
+
     if (['OL', 'UL', 'TABLE'].includes(e.tagName)) {
         return;
     }
@@ -244,19 +247,19 @@ function handleSdpiItemChange(e, idx) {
     if (e.tagName === 'SPAN') {
         const inp = e.parentNode.querySelector('input');
         var tmpValue;
-        
+
         // if there's no attribute set for the span, try to see, if there's a value in the textContent
         // and use it as value
         if (!e.hasAttribute('value')) {
-               tmpValue = Number(e.textContent);
+            tmpValue = Number(e.textContent);
             if (typeof tmpValue === 'number' && tmpValue !== null) {
-                e.setAttribute('value', 0+tmpValue); // this is ugly, but setting a value of 0 on a span doesn't do anything
-                e.value = tmpValue; 
+                e.setAttribute('value', 0 + tmpValue); // this is ugly, but setting a value of 0 on a span doesn't do anything
+                e.value = tmpValue;
             }
         } else {
             tmpValue = Number(e.getAttribute('value'));
         }
-        
+
         if (inp && tmpValue !== undefined) {
             inp.value = tmpValue;
         } else return;
@@ -279,8 +282,8 @@ function handleSdpiItemChange(e, idx) {
             e.classList.toggle('selected');
         }
     }
-  
-    if (sdpiItemChildren.length && ['radio','checkbox'].includes(sdpiItemChildren[0].type)) {
+
+    if (sdpiItemChildren.length && ['radio', 'checkbox'].includes(sdpiItemChildren[0].type)) {
         e.setAttribute('_value', e.checked); //'_value' has priority over .value
     }
     if (sdpiItemGroup && !sdpiItemChildren.length) {
@@ -314,12 +317,12 @@ function handleSdpiItemChange(e, idx) {
         value: isList
             ? e.textContent
             : e.hasAttribute('_value')
-            ? e.getAttribute('_value')
-            : e.value
-            ? e.type === 'file'
-                ? decodeURIComponent(e.value.replace(/^C:\\fakepath\\/, ''))
+                ? e.getAttribute('_value')
                 : e.value
-            : e.getAttribute('value'),
+                    ? e.type === 'file'
+                        ? decodeURIComponent(e.value.replace(/^C:\\fakepath\\/, ''))
+                        : e.value
+                    : e.getAttribute('value'),
         group: sdpiItemGroup ? sdpiItemGroup.id : false,
         index: idx,
         selection: selectedElements,
@@ -334,11 +337,11 @@ function handleSdpiItemChange(e, idx) {
         const info = sdpiItem.querySelector('.sdpi-file-info');
         if (info) {
             const s = returnValue.value.split('/').pop();
-            info.textContent =                s.length > 28
-                    ? s.substr(0, 10)
-                      + '...'
-                      + s.substr(s.length - 10, s.length)
-                    : s;
+            info.textContent = s.length > 28
+                ? s.substr(0, 10)
+                + '...'
+                + s.substr(s.length - 10, s.length)
+                : s;
         }
     }
 
@@ -352,7 +355,7 @@ function handleSdpiItemChange(e, idx) {
         } else {
             saveValueToAction(e.value, e.id);
         }
-        
+
     }
 
     sendValueToPlugin(returnValue, 'sdpi_collection');
@@ -363,7 +366,7 @@ function handleSdpiItemChange(e, idx) {
  * when we receive this information. */
 
 
-function addDynamicStyles (clrs, fromWhere) {
+function addDynamicStyles(clrs, fromWhere) {
     const node = document.getElementById('#sdpi-dynamic-styles') || document.createElement('style');
     if (!clrs.mouseDownColor) clrs.mouseDownColor = fadeColor(clrs.highlightColor, -100);
     const clr = clrs.highlightColor.slice(0, 7);
@@ -430,7 +433,7 @@ function addDynamicStyles (clrs, fromWhere) {
  * -> information about running apps is received from the plugin
  */
 
-function sdpiCreateList (el, obj, cb) {
+function sdpiCreateList(el, obj, cb) {
     if (el) {
         el.style.display = obj.value.length ? 'block' : 'none';
         Array.from(document.querySelectorAll(`.${el.id}`)).forEach((subel, i) => {
@@ -480,7 +483,7 @@ const getPropFromString = (jsn, str, sep = '.') => {
     fadeColor('#061261', 100); // will lighten the color
     fadeColor('#200867'), -100); // will darken the color
 */
-function fadeColor (col, amt) {
+function fadeColor(col, amt) {
     const min = Math.min, max = Math.max;
     const num = parseInt(col.replace(/#/g, ''), 16);
     const r = min(255, max((num >> 16) + amt, 0));
@@ -492,7 +495,7 @@ function fadeColor (col, amt) {
 /** Quick utility to inject a style to the DOM
  * e.g. injectStyle('.localbody { background-color: green;}')
  */
-function injectStyle (clrs) {
+function injectStyle(clrs) {
     const node = document.createElement('style');
     const tempID = window.btoa(new Date().getTime().toString()).slice(10, 18);
     node.setAttribute('id', tempID);
@@ -505,7 +508,7 @@ function injectStyle (clrs) {
  * If the randomly generated string is less than 6 characters
  * pad it with '0'
  */
-function randomColor (prefix) {
+function randomColor(prefix) {
     return (prefix || '') + (((1 << 24) * Math.random()) | 0).toString(16).padStart(6, 0); // just a random color padded to 6 characters
 }
 
@@ -515,33 +518,33 @@ function rangeToPercent(value, min, max) {
 function initToolTips() {
     const tooltip = document.querySelector('.sdpi-info-label');
     const arrElements = document.querySelectorAll('.floating-tooltip');
-    arrElements.forEach((e,i) => {
+    arrElements.forEach((e, i) => {
         initToolTip(e, tooltip)
     })
 }
 
 function initToolTip(element, tooltip) {
-    
+
     const tw = tooltip.getBoundingClientRect().width;
     const suffix = element.getAttribute('data-suffix') || '';
 
     const fn = () => {
-      const elementRect = element.getBoundingClientRect();
-      const w = elementRect.width - tw / 2;
-      const percnt = rangeToPercent(element.value, element.min, element.max);
-      tooltip.textContent = suffix != "" ? `${element.value} ${suffix}` : String(element.value);
-      tooltip.style.left = `${elementRect.left + Math.round(w * percnt) - tw / 4}px`;
-      tooltip.style.top = `${elementRect.top - 32}px`;
+        const elementRect = element.getBoundingClientRect();
+        const w = elementRect.width - tw / 2;
+        const percnt = rangeToPercent(element.value, element.min, element.max);
+        tooltip.textContent = suffix != "" ? `${element.value} ${suffix}` : String(element.value);
+        tooltip.style.left = `${elementRect.left + Math.round(w * percnt) - tw / 4}px`;
+        tooltip.style.top = `${elementRect.top - 32}px`;
     };
 
     if (element) {
-        element.addEventListener('mouseenter', function() {
+        element.addEventListener('mouseenter', function () {
             tooltip.classList.remove('hidden');
             tooltip.classList.add('shown');
             fn();
         }, false);
 
-        element.addEventListener('mouseout', function() {
+        element.addEventListener('mouseout', function () {
             tooltip.classList.remove('shown');
             tooltip.classList.add('hidden');
             fn();
